@@ -1,0 +1,41 @@
+
+server.port: 8086
+
+logging:
+  level.org.hibernate:
+    SQL: debug
+    stat: DEBUG
+
+javax.persistence.schema-generation:
+      scripts:
+        action: none
+
+spring:
+
+  mvc.view:
+    prefix: /WEB-INF/jsp/
+    suffix: .jsp
+
+  application:
+    name: athorize
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: "jdbc:postgresql://127.0.0.1:5432/authorize"
+    username: book_manager
+    password: 123
+
+    initialization-mode: ALWAYS
+    schema: classpath:schemaDB.sql
+
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    hibernate.ddl-auto: none
+    generate-ddl: false
+
+  session:
+    timeout: 600s
+    store-type: jdbc
+    jdbc:
+      initialize-schema: never

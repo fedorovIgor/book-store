@@ -1,5 +1,5 @@
 
-CREATE TABLE IF NOT EXISTS role (
+CREATE TABLE IF NOT EXISTS roles (
     id SERIAL PRIMARY KEY,
     role_name VARCHAR(64) UNIQUE
 );
@@ -10,6 +10,18 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(128),
     role_id INT REFERENCES role (id)
 );
+
+CREATE TABLE IF NOT EXISTS authority (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(64) UNIQUE,
+    description VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS role_authority (
+    role_id INT REFERENCES roles(id),
+    authority_id INT REFERENCES authority(id)
+);
+
 
 CREATE TABLE IF NOT EXISTS SPRING_SESSION (
 	PRIMARY_ID CHAR(36) NOT NULL,

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,33 +29,31 @@ public class JpaUserDetailsService implements UserDetailsService {
         UserEntity entity = userByUsername.orElseThrow(() -> new UsernameNotFoundException
                 (String.format("User with username [%s] not found", username)));
 
-        var user = new User(entity.getUsername(), entity.getPassword());
+       var user = this.userEntityToUser(entity);
 
-        var role = new Role(entity.getRole().getRoleName());
-        var authority = List.of(new GrantedAuthorityRealization(role));
-
-        return new SecurityUser(user, authority);
-    }
-
-    public List<SecurityUser> getAllUser() {
-
-        var result = StreamSupport
-                .stream(userRepository.findAll().spliterator(),false)
-                .map(this::userEntityToSecurityUser)
-                .collect(Collectors.toList());
-
-        return result;
+        return new SecurityUser(user);
     }
 
 
+    private User userEntityToUser(UserEntity entity) {
+        var user = new User();
 
-    private SecurityUser userEntityToSecurityUser(UserEntity entity) {
-        var user = new User(entity.getUsername(), entity.getPassword());
+        var roleEntity = entity.getRole();
+        Collection<AuthorityEntity> authoritiesEntity = roleEntity.getAuthorities();
 
-        var role = new Role(entity.getRole().getRoleName());
-        var authority = List.of(new GrantedAuthorityRealization(role));
+        var role = new Role();
+        role.setRoleName(roleEntity.getRoleName());
+        role.setAuthorities(
+                authoritiesEntity.stream()
+                        .map(a -> new Authority(a.getName(), a.getDescription()))
+                        .collect(Collectors.toList())
+        );
 
-        return new SecurityUser(user, authority);
+        user.setUsername(entity.getUsername());
+        user.setPassword(entity.getPassword());
+        user.setRole(role);
+
+        return user;
     }
 
 }

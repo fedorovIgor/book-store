@@ -12,17 +12,31 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedMethods(List.of("OPTIONS", "GET", "HEAD", "POST", "PUT"));
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 
     @Override
@@ -32,14 +46,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             .sessionFixation().migrateSession();
 
+
         http.httpBasic();
 
-        http.csrf().disable();
+        http.cors();
+
+        http.csrf()
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 
         http.authorizeRequests()
                 .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .mvcMatchers(HttpMethod.OPTIONS, "/books/**").permitAll()
-                .mvcMatchers("/users/**").hasAnyAuthority("admin")
+
+                .mvcMatchers(HttpMethod.GET, "/users/**").hasAuthority("get_users")
+                .mvcMatchers(HttpMethod.PUT, "/users/**").hasAuthority("modificate_users")
+
+                .mvcMatchers(HttpMethod.GET, "/roles/**").hasAuthority("get_roles")
+                .mvcMatchers(HttpMethod.POST, "/roles/**").hasAuthority("create_role")
+                .mvcMatchers(HttpMethod.PUT, "/roles/**").hasAuthority("modificate_roles")
+
+                .mvcMatchers(HttpMethod.GET, "/books/**").permitAll()
+
                 .anyRequest().authenticated();
 
     }

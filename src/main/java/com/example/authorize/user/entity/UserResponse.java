@@ -1,22 +1,12 @@
 package com.example.authorize.user.entity;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@RequiredArgsConstructor
-@Getter @Setter
+@Data
+@AllArgsConstructor
 public class UserResponse {
 
-    private final User user;
-    private final Role role;
-
-    public String getUsername() {
-        return this.user.getUsername();
-    }
-
-    public String getRoleName() {
-        return this.role.getRoleName();
-    }
-
+    private String username;
+    private String role;
 }

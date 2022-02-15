@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 @Data
 @AllArgsConstructor
@@ -13,4 +14,5 @@ import java.io.Serializable;
 @ToString
 public class Role implements Serializable {
     private String roleName;
+    private Collection<Authority> authorities;
 }

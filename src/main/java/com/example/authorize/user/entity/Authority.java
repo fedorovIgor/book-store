@@ -11,8 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class User implements Serializable {
-    private String username;
-    private String password;
-    private Role role;
+public class Authority implements Serializable {
+    private String name;
+    private String description;
 }

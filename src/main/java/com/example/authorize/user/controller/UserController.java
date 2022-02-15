@@ -1,7 +1,9 @@
 package com.example.authorize.user.controller;
 
+import com.example.authorize.user.entity.Role;
 import com.example.authorize.user.entity.UserRequest;
 import com.example.authorize.user.entity.UserResponse;
+import com.example.authorize.user.service.RoleService;
 import com.example.authorize.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
@@ -15,6 +17,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final RoleService roleService;
 
     @GetMapping("/login")
     public Principal getPrincipal(Principal user) {
@@ -23,17 +26,14 @@ public class UserController {
 
     @GetMapping("/users")
     public List<UserResponse> getAllUsers() {
+
+        roleService.getAllRolesWithAuthorities();
         return userService.getAllUser();
     }
 
-    @GetMapping("users/roles")
-    public List<String> getAllRoles() {
-        return userService.getRoles();
-    }
 
-    @PutMapping("users/role")
+    @PutMapping("/users/role")
     public void userInfo(@RequestBody UserRequest user) {
-        System.out.println(user != null);
         var username = user.getUsername();
         var rolename = user.getRole();
         userService.changeUserRole(username, rolename);

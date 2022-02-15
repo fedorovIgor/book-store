@@ -37,20 +37,11 @@ public class UserService {
         return userEntityToUserResponse(entity);
     }
 
-    public List<String> getRoles() {
-        var result = StreamSupport.stream(roleRepository.findAll().spliterator(), false)
-                .map(RoleEntity::getRoleName)
-//                .map(Role::new)
-                .collect(Collectors.toList());
-
-        return result;
-    }
 
     public void changeUserRole(String username, String roleName) {
 
-        Optional<UserEntity> userByUsername = userRepository.findUserByUsername(username);
-
-        UserEntity userEntity = userByUsername.orElseThrow(() -> new UsernameNotFoundException
+        UserEntity userEntity = userRepository.findUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException
                 (String.format("User with username [%s] not found", username)));
 
         RoleEntity roleEntity = roleRepository.findByRoleName(roleName)
@@ -59,16 +50,14 @@ public class UserService {
 
         userEntity.setRole(roleEntity);
 
-        System.out.println(username + "  " + roleName);
-        System.out.println(userEntity.getRole() + "  " + userEntity.getUsername());
         userRepository.save(userEntity);
     }
 
     private UserResponse userEntityToUserResponse(UserEntity entity) {
 
-        var user = new User(entity.getUsername(), entity.getPassword());
-        var role = new Role(entity.getRole().getRoleName());
-        var result = new UserResponse(user, role);
+        var result = new UserResponse(
+                entity.getUsername(),
+                entity.getRole().getRoleName());
 
         return result;
     }

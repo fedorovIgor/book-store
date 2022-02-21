@@ -64,6 +64,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers(HttpMethod.POST, "/roles/**").hasAuthority("create_role")
                 .mvcMatchers(HttpMethod.PUT, "/roles/**").hasAuthority("modificate_roles")
 
+                .mvcMatchers("/swagger-ui").hasAuthority("get_logs")
+                .mvcMatchers("/v3/api-docs").hasAuthority("get_logs")
+
                 .mvcMatchers(HttpMethod.GET, "/books/**").permitAll()
 
                 .anyRequest().authenticated();

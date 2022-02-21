@@ -11,11 +11,10 @@ javax.persistence.schema-generation:
         action: none
 
 spring:
-
-  mvc.view:
-    prefix: /WEB-INF/jsp/
-    suffix: .jsp
-
+#
+#  mvc.view:
+#    prefix: /WEB-INF/jsp/
+#    suffix: .jsp
   application:
     name: athorize
 
@@ -35,7 +34,7 @@ spring:
     generate-ddl: false
 
   session:
-    timeout: 600s
+    timeout: 1500s
     store-type: jdbc
     jdbc:
       initialize-schema: never

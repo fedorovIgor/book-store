@@ -55,10 +55,15 @@ public class UserService {
 
     private UserResponse userEntityToUserResponse(UserEntity entity) {
 
-        var result = new UserResponse(
-                entity.getUsername(),
-                entity.getRole().getRoleName());
+        var userResponse = new UserResponse();
 
-        return result;
+        userResponse.setUsername(entity.getUsername());
+
+        if (entity.getRole() == null)
+            return userResponse;
+
+        userResponse.setRole(entity.getRole().getRoleName());
+
+        return userResponse;
     }
 }

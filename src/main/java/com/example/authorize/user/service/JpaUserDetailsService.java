@@ -1,23 +1,36 @@
 package com.example.authorize.user.service;
 
+import com.example.authorize.user.RoleRepository;
 import com.example.authorize.user.UserRepository;
 import com.example.authorize.user.entity.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
-public class JpaUserDetailsService implements UserDetailsService {
+public class JpaUserDetailsService implements UserDetailsManager {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
     @Override
@@ -34,9 +47,14 @@ public class JpaUserDetailsService implements UserDetailsService {
         return new SecurityUser(user);
     }
 
-
     private User userEntityToUser(UserEntity entity) {
         var user = new User();
+
+        user.setUsername(entity.getUsername());
+        user.setPassword(entity.getPassword());
+
+        if (entity.getRole() == null)
+            return user;
 
         var roleEntity = entity.getRole();
         Collection<AuthorityEntity> authoritiesEntity = roleEntity.getAuthorities();
@@ -49,11 +67,102 @@ public class JpaUserDetailsService implements UserDetailsService {
                         .collect(Collectors.toList())
         );
 
-        user.setUsername(entity.getUsername());
-        user.setPassword(entity.getPassword());
         user.setRole(role);
 
         return user;
     }
 
+
+
+    @Override
+    public void createUser(UserDetails user) {
+        validateUserDetails(user);
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(user.getUsername());
+        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        userRepository.save(userEntity);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Override
+    public void updateUser(UserDetails user) {
+        validateUserDetails(user);
+
+        var username = user.getUsername();
+
+        if (userExists(username))
+            throw new RuntimeException(String
+                    .format("user with name [%s] already exist", username));
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(username);
+        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        userRepository.save(userEntity);
+    }
+
+    @Override
+    public void deleteUser(String username) {
+        throw new RuntimeException("method has`t implemented");
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Override
+    public void changePassword(String oldPassword, String newPassword) {
+        validatePassword(newPassword);
+
+        Authentication currentUser = SecurityContextHolder.getContext()
+                .getAuthentication();
+
+        if (currentUser == null) {
+            throw new AccessDeniedException(
+                    "Can't change password as no Authentication object found in context "
+                            + "for current user.");
+        }
+
+        UserDetails userDetails = (UserDetails) currentUser.getPrincipal();
+
+        if (!passwordEncoder.matches(oldPassword, userDetails.getPassword()))
+            throw new RuntimeException("given currant password incorrect " + oldPassword);
+
+        String username = userDetails.getUsername();
+
+        userRepository.updatePassword(passwordEncoder.encode(newPassword), username);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                createNewAuthentication(currentUser, passwordEncoder.encode(newPassword)));
+
+    }
+
+    private Authentication createNewAuthentication(Authentication currentAuth,
+                                                     String newPassword) {
+        UserDetails user = loadUserByUsername(currentAuth.getName());
+
+        UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
+                user, null, user.getAuthorities());
+        newAuthentication.setDetails(currentAuth.getDetails());
+
+        return newAuthentication;
+    }
+
+
+    @Override
+    public boolean userExists(String username) {
+        return userRepository.isUserExistByUsername(username);
+    }
+
+
+    private void validateUserDetails(UserDetails user) {
+        if (user.getUsername() == null || user.getUsername().strip() == "")
+            throw new RuntimeException("Username may not be empty or null");
+
+        validatePassword(user.getPassword());
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.strip() == "")
+            throw new RuntimeException("Password may not be empty or null");
+    }
 }

@@ -8,6 +8,8 @@ import com.example.authorize.user.entity.Role;
 import com.example.authorize.user.entity.RoleEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -52,7 +54,7 @@ public class RoleService {
         return result;
     }
 
-
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void changeRole(Role role) {
         RoleEntity roleEntity = roleRepository.findByRoleName(role.getRoleName())
                 .orElseThrow(() -> new RuntimeException(
@@ -69,16 +71,13 @@ public class RoleService {
         roleRepository.save(roleEntity);
     }
 
-
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void createNewRole(Role role) {
         if (role == null || role.getRoleName() == null)
-            throw new RuntimeException(
-                    String.format("given role`s incorrect role: [%s]", role)
-            );
+            throw new RuntimeException("Role may not be empty or null");
 
         Optional<RoleEntity> roleOptional = roleRepository.findByRoleName(role.getRoleName());
 
-        System.out.println(roleOptional.isPresent());
         if (roleOptional.isPresent())
             throw new RuntimeException(
                     String.format("Role with name [%s] already exist", role.getRoleName())
@@ -92,9 +91,8 @@ public class RoleService {
         }
         else {
             if (!isAllAuthoritiesExist(role.getAuthorities()))
-                throw new RuntimeException(
-                        String.format("given authorities not exist, Authorities [%s]",role.getAuthorities())
-                );
+                throw new RuntimeException(String
+                        .format("given authorities not exist, Authorities [%s]", role.getAuthorities()));
 
             roleEntity.setAuthorities(this.authoritiesToEntity(role.getAuthorities()));
 

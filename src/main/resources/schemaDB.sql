@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(64) UNIQUE,
     password VARCHAR(128),
-    role_id INT REFERENCES role (id)
+    role_id INT REFERENCES roles (id)
 );
 
 CREATE TABLE IF NOT EXISTS authority (

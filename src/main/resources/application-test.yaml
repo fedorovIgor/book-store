@@ -1,0 +1,23 @@
+server.port: 8086
+
+
+
+logging.level.org.springframework.boot.autoconfigure: error
+
+spring:
+
+  datasource:
+    url: jdbc:h2:mem:jpadb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: mypass
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        use_sql_comments: true
+        format_sql: true

@@ -35,26 +35,4 @@ public class SecurityResourceConfig {
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-
-
-//    @Bean
-//    public SecurityContextRepository securityContextHolder() {
-//        return new HttpSessionSecurityContextRepository();
-//    }
-
-//    @Bean
-//    public CommandLineRunner CommandLineRunnerBean(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-//        return (args) -> {
-//            var role = new RoleEntity();
-//            role.setRoleName("user");
-//            roleRepository.save(role);
-//
-//            var user = new UserEntity();
-//            user.setUsername("user");
-//            user.setPassword(passwordEncoder.encode("123"));
-//            user.setRole(role);
-//
-//            userRepository.save(user);
-//        };
-//    }
 }

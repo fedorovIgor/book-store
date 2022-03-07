@@ -7,7 +7,6 @@ import com.example.authorize.user.entity.UserResponse;
 import com.example.authorize.user.service.JpaUserDetailsService;
 import com.example.authorize.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,23 +24,11 @@ public class UserController {
         return user;
     }
 
-    @GetMapping("/name")
-    public String getMyName(Authentication a) {
-        return a.getName();
-    }
-
     @PutMapping("/password")
     public void changePassword(@RequestBody UserRequest request) {
         userDetailsService.changePassword(
                 request.getOldPassword(),
                 request.getNewPassword());
-    }
-
-    @PutMapping("/username")
-    public void updateUser(@RequestBody UserRequest request) {
-        userDetailsService.updateUser(new SecurityUser(new User(
-                request.getUsername(), request.getOldPassword(), null
-        )));
     }
 
     @PostMapping("/create")
@@ -56,7 +43,7 @@ public class UserController {
         return userService.getAllUser();
     }
 
-    @PutMapping("/users/role") public void userInfo(@RequestBody UserRequest user) {
+    @PutMapping("/users/role") public void changeUserRole(@RequestBody UserRequest user) {
         var username = user.getUsername();
         var roleName = user.getRole();
         userService.changeUserRole(username, roleName);

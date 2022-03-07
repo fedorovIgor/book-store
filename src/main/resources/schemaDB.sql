@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS role_authority (
     authority_id INT REFERENCES authority(id)
 );
 
+--
+--  CREATE SCHEMA FOR SESSION IN DATABASE --
 
 CREATE TABLE IF NOT EXISTS SPRING_SESSION (
 	PRIMARY_ID CHAR(36) NOT NULL,
@@ -45,5 +47,54 @@ CREATE TABLE IF NOT EXISTS SPRING_SESSION_ATTRIBUTES (
 	CONSTRAINT SPRING_SESSION_ATTRIBUTES_PK PRIMARY KEY (SESSION_PRIMARY_ID, ATTRIBUTE_NAME),
 	CONSTRAINT SPRING_SESSION_ATTRIBUTES_FK FOREIGN KEY (SESSION_PRIMARY_ID) REFERENCES SPRING_SESSION(PRIMARY_ID) ON DELETE CASCADE
 );
+
+--
+--  CREATE SCHEMA FOR BookBucket --
+--DROP TABLE title_genre;
+--DROP TABLE title_author;
+--DROP TABLE book;
+--DROP TABLE author;
+--DROP TABLE genre;
+--DROP TABLE title;
+
+CREATE TABLE IF NOT EXISTS title (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(64) UNIQUE,
+    dateWriting DATE,
+    imageUrl VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS genre (
+    id SERIAL PRIMARY KEY,
+    genre_name VARCHAR(64) UNIQUE
+ );
+
+ CREATE TABLE IF NOT EXISTS author (
+     id SERIAL PRIMARY KEY,
+     first_name VARCHAR(64),
+     last_name VARCHAR(64),
+     birthday DATE,
+     biography VARCHAR
+ );
+
+CREATE TABLE IF NOT EXISTS book (
+    id SERIAL PRIMARY KEY,
+    date_publication DATE,
+    publisher VARCHAR(64),
+    price INT,
+    title_fk INT REFERENCES title (id)
+ );
+
+
+ CREATE TABLE IF NOT EXISTS title_author (
+     author_id INT REFERENCES author(id),
+     title_id INT REFERENCES title(id)
+ );
+
+ CREATE TABLE IF NOT EXISTS title_genre (
+     genre_id INT REFERENCES genre(id),
+     title_id INT REFERENCES title(id)
+ );
+
 
 

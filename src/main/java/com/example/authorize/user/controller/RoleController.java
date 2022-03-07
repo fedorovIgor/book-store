@@ -37,7 +37,7 @@ public class RoleController {
     }
 
 
-    @PutMapping("/authorities")
+    @PutMapping
     public void changeRole(@RequestBody Role role) {
         roleService.changeRole(role);
     }

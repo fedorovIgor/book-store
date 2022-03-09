@@ -1,4 +1,4 @@
-package com.example.authorize.user.entity;
+package com.example.authorize.user.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

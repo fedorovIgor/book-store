@@ -4,13 +4,13 @@ import com.example.authorize.bookbucket.model.dto.*;
 
 import java.util.List;
 
-public interface ReadBookBucket {
+public interface BookBucketReadService {
 
     Book getBookById(int id);
     List<Book> getAllBooksInTitle(int titleId);
 
     Author getAuthor(int id);
-    List<Author> getAllAuthors();
+    AuthorPageResponse getAllAuthors(int page);
 
     List<Genre> getAllGenres();
 

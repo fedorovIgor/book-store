@@ -1,4 +1,4 @@
-package com.example.authorize.user.entity;
+package com.example.authorize.user.model.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

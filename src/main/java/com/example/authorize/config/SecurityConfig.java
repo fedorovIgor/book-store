@@ -57,17 +57,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                .mvcMatchers(HttpMethod.GET, "/users/**").hasAuthority("get_users")
-                .mvcMatchers(HttpMethod.PUT, "/users/**").hasAuthority("modificate_users")
 
-                .mvcMatchers(HttpMethod.GET, "/roles/**").hasAuthority("get_roles")
-                .mvcMatchers(HttpMethod.POST, "/roles/**").hasAuthority("create_role")
-                .mvcMatchers(HttpMethod.PUT, "/roles/**").hasAuthority("modificate_roles")
+                .mvcMatchers(HttpMethod.GET, "**/login").permitAll()
+                .mvcMatchers(HttpMethod.POST, "**/user/create").permitAll()
+                .mvcMatchers(HttpMethod.PUT, "**/user/password").authenticated()
+                .mvcMatchers(HttpMethod.GET, "/api/v1/user/**").hasAuthority("get_users")
+                .mvcMatchers(HttpMethod.PUT, "/api/v1/user/**").hasAuthority("modificate_users")
+
+                .mvcMatchers(HttpMethod.GET, "/api/v1/role/**").hasAuthority("get_roles")
+                .mvcMatchers(HttpMethod.POST, "/api/v1/role/**").hasAuthority("create_role")
+                .mvcMatchers(HttpMethod.PUT, "/api/v1/role/**").hasAuthority("modificate_roles")
 
                 .mvcMatchers("/swagger-ui").hasAuthority("get_logs")
                 .mvcMatchers("/v3/api-docs").hasAuthority("get_logs")
 
-                .mvcMatchers(HttpMethod.GET, "/books/**").permitAll()
+                .mvcMatchers(HttpMethod.GET, "api/v1/bucket/**").permitAll()
 
                 .anyRequest().authenticated();
 

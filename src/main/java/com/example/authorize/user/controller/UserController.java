@@ -1,9 +1,9 @@
 package com.example.authorize.user.controller;
 
-import com.example.authorize.user.entity.SecurityUser;
-import com.example.authorize.user.entity.User;
-import com.example.authorize.user.entity.UserRequest;
-import com.example.authorize.user.entity.UserResponse;
+import com.example.authorize.user.model.SecurityUser;
+import com.example.authorize.user.model.dto.User;
+import com.example.authorize.user.model.dto.UserRequest;
+import com.example.authorize.user.model.dto.UserResponse;
 import com.example.authorize.user.service.JpaUserDetailsService;
 import com.example.authorize.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
+@RequestMapping("api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -24,11 +25,9 @@ public class UserController {
         return user;
     }
 
-    @PutMapping("/password")
-    public void changePassword(@RequestBody UserRequest request) {
-        userDetailsService.changePassword(
-                request.getOldPassword(),
-                request.getNewPassword());
+    @GetMapping
+    public List<UserResponse> getAllUsers() {
+        return userService.getAllUser();
     }
 
     @PostMapping("/create")
@@ -38,15 +37,17 @@ public class UserController {
         )));
     }
 
-    @GetMapping("/users")
-    public List<UserResponse> getAllUsers() {
-        return userService.getAllUser();
+    @PutMapping("/password")
+    public void changePassword(@RequestBody UserRequest request) {
+        userDetailsService.changePassword(
+                request.getOldPassword(),
+                request.getNewPassword());
     }
 
-    @PutMapping("/users/role") public void changeUserRole(@RequestBody UserRequest user) {
-        var username = user.getUsername();
-        var roleName = user.getRole();
-        userService.changeUserRole(username, roleName);
+    @PutMapping("/role") public void changeUserRole(@RequestBody UserRequest user) {
+        userService.changeUserRole(
+                user.getUsername(),
+                user.getRole());
     }
 
 }

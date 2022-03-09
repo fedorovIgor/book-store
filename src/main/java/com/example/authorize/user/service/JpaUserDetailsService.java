@@ -1,7 +1,12 @@
 package com.example.authorize.user.service;
 
-import com.example.authorize.user.UserRepository;
-import com.example.authorize.user.entity.*;
+import com.example.authorize.user.repository.UserRepository;
+import com.example.authorize.user.model.*;
+import com.example.authorize.user.model.dto.Authority;
+import com.example.authorize.user.model.dto.Role;
+import com.example.authorize.user.model.dto.User;
+import com.example.authorize.user.model.entity.AuthorityEntity;
+import com.example.authorize.user.model.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

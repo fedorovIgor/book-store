@@ -1,15 +1,18 @@
 package com.example.authorize.bookbucket.service;
 
-import com.example.authorize.bookbucket.dao.AuthorRepository;
-import com.example.authorize.bookbucket.dao.BookRepository;
-import com.example.authorize.bookbucket.dao.GenreRepository;
-import com.example.authorize.bookbucket.dao.TitleRepository;
+import com.example.authorize.bookbucket.repository.AuthorRepository;
+import com.example.authorize.bookbucket.repository.BookRepository;
+import com.example.authorize.bookbucket.repository.GenreRepository;
+import com.example.authorize.bookbucket.repository.TitleRepository;
 import com.example.authorize.bookbucket.exception.ResourceNotFoundException;
 import com.example.authorize.bookbucket.model.dto.*;
 import com.example.authorize.bookbucket.model.entity.AuthorEntity;
 import com.example.authorize.bookbucket.model.entity.BookEntity;
 import com.example.authorize.bookbucket.model.entity.TitleEntity;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ReadBookBuketService implements ReadBookBucket{
+public class BookBucketReadServiceImplement implements BookBucketReadService {
 
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
@@ -31,7 +34,7 @@ public class ReadBookBuketService implements ReadBookBucket{
         var bookEntity = byId.orElseThrow(() -> new ResourceNotFoundException(String.format(
                 "Book with id [%s] not exist")));
 
-        return BookEntityToBook(bookEntity);
+        return bookEntityToBook(bookEntity);
     }
 
     @Override
@@ -89,7 +92,7 @@ public class ReadBookBuketService implements ReadBookBucket{
                     "No one book find by title id [%i]",titleId)));
 
         var result = titleWithBooks.getBooksEntity().stream()
-                .map(this::BookEntityToBook)
+                .map(this::bookEntityToBook)
                 .collect(Collectors.toList());
 
         return result;
@@ -101,8 +104,27 @@ public class ReadBookBuketService implements ReadBookBucket{
     }
 
     @Override
-    public List<Author> getAllAuthors() {
-        return null;
+    public AuthorPageResponse getAllAuthors(int givenPage) {
+
+        int size = 20;
+
+        int innerPage = givenPage - 1;
+
+        Page<AuthorEntity> authorsEntityPage = authorRepository
+                .findAll(PageRequest.of(innerPage, size, Sort.by("lastName")));
+
+        List<Author> authors = authorsEntityPage.getContent().stream()
+                .map(this::authorEntityToAuthor)
+                .collect(Collectors.toList());
+
+        AuthorPageResponse authorPage = new AuthorPageResponse(
+                authorsEntityPage.getTotalElements(),
+                givenPage,
+                authorsEntityPage.getTotalPages(),
+                authors
+        );
+
+        return authorPage;
     }
 
     @Override
@@ -154,7 +176,7 @@ public class ReadBookBuketService implements ReadBookBucket{
         return author;
     }
 
-    private Book BookEntityToBook(BookEntity entity) {
+    private Book bookEntityToBook(BookEntity entity) {
         var book = new Book();
         book.setPublisher(entity.getPublisher());
         book.setDatePublication(entity.getDatePublication());

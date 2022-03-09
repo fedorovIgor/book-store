@@ -38,3 +38,6 @@ spring:
     store-type: jdbc
     jdbc:
       initialize-schema: never
+
+  mvc.pathmatch:
+      matching-strategy: ant-path-matcher

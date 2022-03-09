@@ -1,5 +1,7 @@
-package com.example.authorize.user.entity;
+package com.example.authorize.user.model.entity;
 
+import com.example.authorize.user.model.entity.AuthorityEntity;
+import com.example.authorize.user.model.entity.UserEntity;
 import lombok.Getter;
 import lombok.Setter;
 

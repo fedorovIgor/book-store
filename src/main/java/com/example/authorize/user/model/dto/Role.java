@@ -1,5 +1,6 @@
-package com.example.authorize.user.entity;
+package com.example.authorize.user.model.dto;
 
+import com.example.authorize.user.model.dto.Authority;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

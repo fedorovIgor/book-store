@@ -1,9 +1,9 @@
 package com.example.authorize.bookbucket.service;
 
-import com.example.authorize.bookbucket.dao.AuthorRepository;
-import com.example.authorize.bookbucket.dao.BookRepository;
-import com.example.authorize.bookbucket.dao.GenreRepository;
-import com.example.authorize.bookbucket.dao.TitleRepository;
+import com.example.authorize.bookbucket.repository.AuthorRepository;
+import com.example.authorize.bookbucket.repository.BookRepository;
+import com.example.authorize.bookbucket.repository.GenreRepository;
+import com.example.authorize.bookbucket.repository.TitleRepository;
 import com.example.authorize.bookbucket.exception.ResourceAlreadyExistException;
 import com.example.authorize.bookbucket.model.dto.*;
 import com.example.authorize.bookbucket.model.entity.AuthorEntity;

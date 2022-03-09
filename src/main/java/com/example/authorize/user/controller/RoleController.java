@@ -1,6 +1,6 @@
 package com.example.authorize.user.controller;
 
-import com.example.authorize.user.entity.Role;
+import com.example.authorize.user.model.dto.Role;
 import com.example.authorize.user.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/roles")
+@RequestMapping("api/v1/roles")
 @RequiredArgsConstructor
 public class RoleController {
 

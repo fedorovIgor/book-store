@@ -1,14 +1,12 @@
-package com.example.authorize.user.entity;
+package com.example.authorize.user.model;
 
-import com.example.authorize.user.entity.GrantedAuthorityRealization;
-import com.example.authorize.user.entity.User;
+import com.example.authorize.user.model.dto.User;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 

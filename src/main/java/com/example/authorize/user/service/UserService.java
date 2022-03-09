@@ -1,14 +1,15 @@
 package com.example.authorize.user.service;
 
-import com.example.authorize.user.RoleRepository;
-import com.example.authorize.user.UserRepository;
-import com.example.authorize.user.entity.*;
+import com.example.authorize.user.repository.RoleRepository;
+import com.example.authorize.user.repository.UserRepository;
+import com.example.authorize.user.model.dto.UserResponse;
+import com.example.authorize.user.model.entity.RoleEntity;
+import com.example.authorize.user.model.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 

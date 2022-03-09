@@ -1,32 +1,33 @@
 package com.example.authorize.bookbucket.controller;
 
-import com.example.authorize.bookbucket.model.dto.Title;
+import com.example.authorize.bookbucket.model.dto.AuthorPageResponse;
+import com.example.authorize.bookbucket.model.dto.Genre;
+import com.example.authorize.bookbucket.model.dto.TitleAuthorGenre;
+import com.example.authorize.bookbucket.service.BookBucketReadService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("bookbucket/v1/api")
+@RequestMapping("api/v1/bucket")
+@RequiredArgsConstructor
 public class BookController {
 
-//    @GetMapping
-//    List<TitleResponse> getTitles(){}
-//
-//    @GetMapping
-//    List<BookResponse> getBooksByTitle(TitleRequest request) {}
-//
-//    @GetMapping
-//    List<BookResponse> getUserBooks(Authority authority) {
-//
-//    }
+    private final BookBucketReadService bookBucketReadService;
 
-//    @PostMapping("title")
-//    void addNewTitle(@RequestBody Title title) {
-//        service.createTitle(title);
-//    }
+    @GetMapping(value = "book")
+    public List<TitleAuthorGenre> getAllTitle() {
+        return bookBucketReadService.getAllTitle();
+    }
 
-    @PostMapping
-    void addNewBook(){}
+    @GetMapping(value = "genre")
+    public List<Genre> getAllGenre() {
+        return bookBucketReadService.getAllGenres();
+    }
 
-    @PutMapping
-    void changeTitle() {}
-
+    @GetMapping(value = "author/{page}")
+    public AuthorPageResponse getAuthorPage(@PathVariable("page") int page) {
+        return bookBucketReadService.getAllAuthors(page);
+    }
 }

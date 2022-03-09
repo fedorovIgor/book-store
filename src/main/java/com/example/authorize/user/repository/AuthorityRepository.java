@@ -1,6 +1,6 @@
-package com.example.authorize.user;
+package com.example.authorize.user.repository;
 
-import com.example.authorize.user.entity.AuthorityEntity;
+import com.example.authorize.user.model.entity.AuthorityEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

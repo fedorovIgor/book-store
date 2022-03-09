@@ -1,11 +1,11 @@
 package com.example.authorize.user.service;
 
-import com.example.authorize.user.AuthorityRepository;
-import com.example.authorize.user.RoleRepository;
-import com.example.authorize.user.entity.Authority;
-import com.example.authorize.user.entity.AuthorityEntity;
-import com.example.authorize.user.entity.Role;
-import com.example.authorize.user.entity.RoleEntity;
+import com.example.authorize.user.repository.AuthorityRepository;
+import com.example.authorize.user.repository.RoleRepository;
+import com.example.authorize.user.model.dto.Authority;
+import com.example.authorize.user.model.entity.AuthorityEntity;
+import com.example.authorize.user.model.dto.Role;
+import com.example.authorize.user.model.entity.RoleEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;

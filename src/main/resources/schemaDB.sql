@@ -50,18 +50,18 @@ CREATE TABLE IF NOT EXISTS SPRING_SESSION_ATTRIBUTES (
 
 --
 --  CREATE SCHEMA FOR BookBucket --
---DROP TABLE title_genre;
---DROP TABLE title_author;
---DROP TABLE book;
---DROP TABLE author;
---DROP TABLE genre;
---DROP TABLE title;
+--DROP TABLE IF EXISTS title_genre;
+--DROP TABLE IF EXISTS title_author;
+--DROP TABLE IF EXISTS book;
+--DROP TABLE IF EXISTS author;
+--DROP TABLE IF EXISTS genre;
+--DROP TABLE IF EXISTS title;
 
 CREATE TABLE IF NOT EXISTS title (
     id SERIAL PRIMARY KEY,
     name VARCHAR(64) UNIQUE,
-    dateWriting DATE,
-    imageUrl VARCHAR
+    date_writing DATE,
+    image_url VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS genre (

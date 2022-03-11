@@ -1,5 +1,6 @@
 package com.example.authorize.bookbucket.service;
 
+import com.example.authorize.bookbucket.model.entity.GenreEntity;
 import com.example.authorize.bookbucket.repository.AuthorRepository;
 import com.example.authorize.bookbucket.repository.BookRepository;
 import com.example.authorize.bookbucket.repository.GenreRepository;
@@ -17,11 +18,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class BookBucketReadServiceImplement implements BookBucketReadService {
+    private static final int pageSize = 10;
 
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
@@ -29,53 +32,80 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
     private final GenreRepository genreRepository;
 
     @Override
-    public Book getBookById(int id) {
-        Optional<BookEntity> byId = bookRepository.findById(id);
-        var bookEntity = byId.orElseThrow(() -> new ResourceNotFoundException(String.format(
-                "Book with id [%s] not exist")));
+    public PagebleResponse getAllTitle(int pageNumber) {
 
-        return bookEntityToBook(bookEntity);
+        Page<Integer> titlePageIds = titleRepository.findTitleIds(
+                PageRequest.of(pageNumber, this.pageSize, Sort.by("name")));
+
+        if (titlePageIds.getContent().isEmpty())
+            throw new ResourceNotFoundException("No one book find");
+
+        List<TitleEntity> titleEntity = titleRepository.findTitlesInIds(titlePageIds.getContent());
+
+        var titles = titleEntity.stream()
+                .map(this::titleEntityToTitleResponse)
+                .collect(Collectors.toList());
+
+        return getPagebleResponse(titles, titlePageIds, pageNumber);
     }
 
     @Override
-    public List<TitleAuthorGenre> getTitlesByGenre(String genre) {
+    public PagebleResponse getTitlesByGenre(String genre, int pageNumber) {
         String genreUpper = genre.toUpperCase();
         
         if (!genreRepository.isExistsByName(genreUpper))
             throw new ResourceNotFoundException(String.format(
                     "Genre [%s] not exist",genre));
 
-        List<TitleEntity> titleWithGenreEntity = titleRepository.findTitlesInGenre(genreUpper);
-        
-        if (titleWithGenreEntity.isEmpty())
+        Page<Integer> titlePageIds = titleRepository.findTitleIdsInGenre(
+                genreUpper,
+                    PageRequest.of(pageNumber, this.pageSize, Sort.by("name")));
+
+        if (titlePageIds.isEmpty())
             throw new ResourceNotFoundException(String.format(
                     "No one book find with genre [%s]",genre));
 
-        var titlesInGenre = titleWithGenreEntity.stream()
-                .map(this::titleEntityToTitleAuthorGenre)
+        List<TitleEntity> titleEntity = titleRepository.findTitlesInIds(titlePageIds.getContent());
+
+        var titlesInGenre = titleEntity.stream()
+                .map(this::titleEntityToTitleResponse)
                 .collect(Collectors.toList());
-        
-        return titlesInGenre;
+
+        return getPagebleResponse(titlesInGenre, titlePageIds, pageNumber);
     }
 
     @Override
-    public List<TitleAuthorGenre> getTitlesByAuthor(int authorId) {
+    public PagebleResponse getTitlesByAuthorId(int authorId, int pageNumber) {
 
         if (!authorRepository.existsById(authorId))
             throw new ResourceNotFoundException(String.format(
                     "Author with id [%i] not exist", authorId));
 
-        List<TitleEntity> titlesWithAuthor = titleRepository.findTitlesInAuthor(authorId);
+        Page<Integer> titlePageIds = titleRepository.findTitleIdsInAuthor(
+                authorId,
+                PageRequest.of(pageNumber, this.pageSize, Sort.by("name")));
 
-        if(titlesWithAuthor.isEmpty())
+        if (titlePageIds.isEmpty())
             throw new ResourceNotFoundException(String.format(
                     "No one book find with authorId [%i]",authorId));
 
-        var result = titlesWithAuthor.stream()
-                .map(this::titleEntityToTitleAuthorGenre)
+        List<TitleEntity> titleEntity = titleRepository.findTitlesInIds(titlePageIds.getContent());
+
+        var titlesInAuthor = titleEntity.stream()
+                .map(this::titleEntityToTitleResponse)
                 .collect(Collectors.toList());
 
-        return result;
+        return getPagebleResponse(titlesInAuthor, titlePageIds, pageNumber);
+    }
+
+
+    @Override
+    public Book getBookById(int id) {
+        Optional<BookEntity> byId = bookRepository.findById(id);
+        var bookEntity = byId.orElseThrow(() -> new ResourceNotFoundException(String.format(
+                "Book with id [%i] not exist", id)));
+
+        return bookEntityToBook(bookEntity);
     }
 
     @Override
@@ -99,81 +129,102 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
     }
 
     @Override
-    public Author getAuthor(int id) {
-        return null;
-    }
-
-    @Override
-    public AuthorPageResponse getAllAuthors(int givenPage) {
-
-        int size = 20;
-
-        int innerPage = givenPage - 1;
-
-        Page<AuthorEntity> authorsEntityPage = authorRepository
-                .findAll(PageRequest.of(innerPage, size, Sort.by("lastName")));
-
-        List<Author> authors = authorsEntityPage.getContent().stream()
-                .map(this::authorEntityToAuthor)
-                .collect(Collectors.toList());
-
-        AuthorPageResponse authorPage = new AuthorPageResponse(
-                authorsEntityPage.getTotalElements(),
-                givenPage,
-                authorsEntityPage.getTotalPages(),
-                authors
-        );
-
-        return authorPage;
-    }
-
-    @Override
     public List<Genre> getAllGenres() {
         return null;
     }
 
     @Override
-    public List<TitleAuthorGenre> getAllTitle() {
+    public AuthorResponse getAuthor(int id) {
         return null;
     }
 
+    @Override
+    public PagebleResponse getAllAuthors(int pageNumber) {
 
-    private TitleAuthorGenre titleEntityToTitleAuthorGenre(TitleEntity entity) {
-        var title = new TitleAuthorGenre();
+        Page<Integer> authorsIdsPage = authorRepository
+                .findAuthorsIds(PageRequest.of(pageNumber, pageSize, Sort.by("lastName")));
 
-        title.setDateWriting(entity.getDateWriting());
-        title.setImageUrl(entity.getImageUrl());
-        title.setName(entity.getName());
+        if (authorsIdsPage.getContent().isEmpty())
+            throw new ResourceNotFoundException("No one book find");
 
-        if (!entity.getAuthors().isEmpty()) {
-            String authors = entity.getAuthors().stream()
-                    .map(this::authorEntityToAuthor)
-                    .map(s -> s.getFirstName() + " " + s.getLastName())
-                    .collect(Collectors.joining(","));
+        System.out.println(authorsIdsPage);
 
-            title.setAuthorsNames(authors);
-        }
+        List<AuthorEntity> authorEntities = authorRepository
+                .getAuthorsInIds(authorsIdsPage.getContent());
 
-        if (!entity.getGenres().isEmpty()) {
-            var genre = entity.getGenres().stream()
-                    .map(g -> g.getGenreName())
-                    .collect(Collectors.joining(","));
+        var authors = authorEntities.stream()
+                .map(this::authorEntityToAuthorResponse)
+                .collect(Collectors.toList());
 
-            title.setGenres(genre);
-        }
-
-        return title;
+        return getPagebleResponse(authors, authorsIdsPage, pageNumber);
     }
 
-    private Author authorEntityToAuthor(AuthorEntity entity) {
-        Author author = new Author();
+    private <T extends ResponseData> PagebleResponse getPagebleResponse(List<T> data,
+                                                                        Page<Integer> idsPage,
+                                                                        int currentPage){
+        PagebleResponse<T> response = new PagebleResponse<>();
+        response.setCurrentPage(currentPage);
+        response.setTotalElements(idsPage.getTotalElements());
+        response.setTotalPages(idsPage.getTotalPages());
+        response.setData(data);
 
-        author.setFirstName(entity.getFirstName());
-        author.setLastName(entity.getLastName());
-        author.setBirthday(entity.getBirthday());
-        author.setBiography(entity.getBiography());
+        return response;
+    }
 
-        return author;
+    private TitleResponse titleEntityToTitleResponse(TitleEntity entity) {
+        TitleResponse titleResponse = new TitleResponse();
+        titleResponse.setTitle(entity.getName());
+        titleResponse.setDateWriting(entity.getDateWriting());
+        titleResponse.setImgUrl(entity.getImageUrl());
+        titleResponse.setGenres(
+                getGenreName(entity.getGenres()));
+        titleResponse.setAuthorsNames(
+                getAuthorName(entity.getAuthors()));
+
+        return titleResponse;
+    }
+
+    private String getAuthorName(Set<AuthorEntity> authors) {
+        if (authors.isEmpty())
+            return "";
+
+        String authorName = authors.stream()
+                .map(a -> a.getFirstName().charAt(0) + "." + a.getLastName())
+                .collect(Collectors.joining(","));
+
+        return authorName;
+    }
+
+    private String getGenreName(Set<GenreEntity> genres) {
+        if (genres.isEmpty())
+            return "";
+
+        String genreNames = genres.stream()
+                .map(g -> g.getGenreName())
+                .collect(Collectors.joining(","));
+
+        return genreNames;
+    }
+
+    private AuthorResponse authorEntityToAuthorResponse(AuthorEntity e) {
+        AuthorResponse authorResponse = new AuthorResponse();
+        authorResponse.setFirstName(e.getFirstName());
+        authorResponse.setLastName(e.getLastName());
+        authorResponse.setWrittenBooks(
+                getAuthorTitle(e.getTitles()));
+
+        return authorResponse;
+    }
+
+    private String getAuthorTitle(Set<TitleEntity> titleEntities) {
+        if (titleEntities.isEmpty())
+            return null;
+
+        var result = titleEntities.stream()
+                .map(t -> t.getName())
+                .collect(Collectors.joining(","));
+
+        return result;
     }
 
     private Book bookEntityToBook(BookEntity entity) {

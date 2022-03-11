@@ -9,13 +9,13 @@ public interface BookBucketReadService {
     Book getBookById(int id);
     List<Book> getAllBooksInTitle(int titleId);
 
-    Author getAuthor(int id);
-    AuthorPageResponse getAllAuthors(int page);
+    AuthorResponse getAuthor(int id);
+    PagebleResponse getAllAuthors(int page);
 
     List<Genre> getAllGenres();
 
-    List<TitleAuthorGenre> getAllTitle();
-    List<TitleAuthorGenre> getTitlesByGenre(String genre);
-    List<TitleAuthorGenre> getTitlesByAuthor(int authorId);
+    PagebleResponse getAllTitle(int pageNumber);
+    PagebleResponse getTitlesByGenre(String genre, int pageNumber);
+    PagebleResponse getTitlesByAuthorId(int authorId, int pageNumber);
 
 }

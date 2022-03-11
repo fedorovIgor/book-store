@@ -73,7 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .mvcMatchers(HttpMethod.GET, "api/v1/bucket/**").permitAll()
 
-                .anyRequest().authenticated();
+                .anyRequest().permitAll();
 
     }
 }

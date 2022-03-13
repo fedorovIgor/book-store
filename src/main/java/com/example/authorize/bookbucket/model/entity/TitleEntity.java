@@ -1,11 +1,13 @@
 package com.example.authorize.bookbucket.model.entity;
 
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -28,4 +30,17 @@ public class TitleEntity {
 
     @OneToMany(mappedBy = "title", fetch = FetchType.LAZY)
     private Set<BookEntity> booksEntity;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TitleEntity that = (TitleEntity) o;
+        return id == that.id && name.equals(that.name) && Objects.equals(dateWriting, that.dateWriting) && Objects.equals(imageUrl, that.imageUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, dateWriting, imageUrl);
+    }
 }

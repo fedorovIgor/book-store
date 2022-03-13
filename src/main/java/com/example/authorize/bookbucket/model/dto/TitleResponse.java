@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class TitleResponse implements ResponseData {
+public class TitleResponse implements ResponsePageable {
     private String title;
     private LocalDate dateWriting;
     private String imgUrl;

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface TitleRepository extends JpaRepository<TitleEntity, Integer> {
 
@@ -43,4 +44,7 @@ public interface TitleRepository extends JpaRepository<TitleEntity, Integer> {
     @Query("SELECT t.id FROM TitleEntity t ")
     Page<Integer> findTitleIds(Pageable pageable);
 
+    @Query("SELECT t.name FROM TitleEntity t " +
+            "WHERE t.name IN (:titles)")
+    List<String> findTitlesInName(@Param("titles") Set<String> titleNames);
 }

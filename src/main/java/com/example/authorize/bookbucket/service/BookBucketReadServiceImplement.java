@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @AllArgsConstructor
@@ -32,7 +33,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
     private final GenreRepository genreRepository;
 
     @Override
-    public PagebleResponse getAllTitle(int pageNumber) {
+    public PageableResponse getAllTitle(int pageNumber) {
 
         Page<Integer> titlePageIds = titleRepository.findTitleIds(
                 PageRequest.of(pageNumber, this.pageSize, Sort.by("name")));
@@ -46,11 +47,11 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
                 .map(this::titleEntityToTitleResponse)
                 .collect(Collectors.toList());
 
-        return getPagebleResponse(titles, titlePageIds, pageNumber);
+        return getPageableResponse(titles, titlePageIds, pageNumber);
     }
 
     @Override
-    public PagebleResponse getTitlesByGenre(String genre, int pageNumber) {
+    public PageableResponse getTitlesByGenre(String genre, int pageNumber) {
         String genreUpper = genre.toUpperCase();
         
         if (!genreRepository.isExistsByName(genreUpper))
@@ -71,11 +72,11 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
                 .map(this::titleEntityToTitleResponse)
                 .collect(Collectors.toList());
 
-        return getPagebleResponse(titlesInGenre, titlePageIds, pageNumber);
+        return getPageableResponse(titlesInGenre, titlePageIds, pageNumber);
     }
 
     @Override
-    public PagebleResponse getTitlesByAuthorId(int authorId, int pageNumber) {
+    public PageableResponse getTitlesByAuthorId(int authorId, int pageNumber) {
 
         if (!authorRepository.existsById(authorId))
             throw new ResourceNotFoundException(String.format(
@@ -95,7 +96,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
                 .map(this::titleEntityToTitleResponse)
                 .collect(Collectors.toList());
 
-        return getPagebleResponse(titlesInAuthor, titlePageIds, pageNumber);
+        return getPageableResponse(titlesInAuthor, titlePageIds, pageNumber);
     }
 
 
@@ -129,17 +130,29 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
     }
 
     @Override
-    public List<Genre> getAllGenres() {
-        return null;
+    public List<GenreResponse> getAllGenres() {
+        var iterableGenre = genreRepository.findAll();
+        var result =  StreamSupport
+                .stream(iterableGenre.spliterator(), false)
+                .map(GenreResponse::new)
+                .collect(Collectors.toList());
+
+        return result;
     }
 
     @Override
     public AuthorResponse getAuthor(int id) {
-        return null;
+
+        var entity = authorRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("No Authors with id " + id));
+
+        AuthorResponse response = authorEntityToAuthorResponse(entity);
+
+        return response;
     }
 
     @Override
-    public PagebleResponse getAllAuthors(int pageNumber) {
+    public PageableResponse getAllAuthors(int pageNumber) {
 
         Page<Integer> authorsIdsPage = authorRepository
                 .findAuthorsIds(PageRequest.of(pageNumber, pageSize, Sort.by("lastName")));
@@ -156,13 +169,13 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
                 .map(this::authorEntityToAuthorResponse)
                 .collect(Collectors.toList());
 
-        return getPagebleResponse(authors, authorsIdsPage, pageNumber);
+        return getPageableResponse(authors, authorsIdsPage, pageNumber);
     }
 
-    private <T extends ResponseData> PagebleResponse getPagebleResponse(List<T> data,
-                                                                        Page<Integer> idsPage,
-                                                                        int currentPage){
-        PagebleResponse<T> response = new PagebleResponse<>();
+    private <T extends ResponsePageable> PageableResponse getPageableResponse(List<T> data,
+                                                                              Page<Integer> idsPage,
+                                                                              int currentPage){
+        PageableResponse<T> response = new PageableResponse<>();
         response.setCurrentPage(currentPage);
         response.setTotalElements(idsPage.getTotalElements());
         response.setTotalPages(idsPage.getTotalPages());

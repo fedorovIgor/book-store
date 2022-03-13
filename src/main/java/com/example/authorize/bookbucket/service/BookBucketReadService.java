@@ -10,12 +10,12 @@ public interface BookBucketReadService {
     List<Book> getAllBooksInTitle(int titleId);
 
     AuthorResponse getAuthor(int id);
-    PagebleResponse getAllAuthors(int page);
+    PageableResponse getAllAuthors(int page);
 
-    List<Genre> getAllGenres();
+    List<GenreResponse> getAllGenres();
 
-    PagebleResponse getAllTitle(int pageNumber);
-    PagebleResponse getTitlesByGenre(String genre, int pageNumber);
-    PagebleResponse getTitlesByAuthorId(int authorId, int pageNumber);
+    PageableResponse getAllTitle(int pageNumber);
+    PageableResponse getTitlesByGenre(String genre, int pageNumber);
+    PageableResponse getTitlesByAuthorId(int authorId, int pageNumber);
 
 }

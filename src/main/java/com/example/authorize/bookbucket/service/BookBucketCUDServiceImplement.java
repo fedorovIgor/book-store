@@ -1,5 +1,6 @@
 package com.example.authorize.bookbucket.service;
 
+import com.example.authorize.bookbucket.exception.IllegalTitleRequestException;
 import com.example.authorize.bookbucket.model.entity.GenreEntity;
 import com.example.authorize.bookbucket.model.entity.TitleEntity;
 import com.example.authorize.bookbucket.repository.AuthorRepository;
@@ -30,7 +31,7 @@ public class BookBucketCUDServiceImplement implements BookBucketCUDService{
         }
         if (request.getBirthday() == null &&
                 request.getLastNam() == null) {
-            saveTitlesWithGenre(request.getWrittenBooks());
+            saveNewTitles(request.getWrittenBooks());
         }
         else {
             saveAuthorWithTitle(request);
@@ -55,11 +56,11 @@ public class BookBucketCUDServiceImplement implements BookBucketCUDService{
 //        3. save authorEntity
     }
 
-    @Transactional( rollbackFor = {SQLException.class })
-    private void saveTitlesWithGenre(List<TitleRequest> requests) {
-//        1. check In titleName
-//        2. All title who not exist should be saving
-//        3. create report
+    @Transactional( rollbackFor = { SQLException.class })
+    public void saveNewTitles(List<TitleRequest> requests) {
+
+        if (requests == null || requests.isEmpty())
+            throw new IllegalTitleRequestException("Request is empty");
 
         var titlesFromRequest = requests.stream()
                 .filter(t -> t.getTitleId() == null)
@@ -78,50 +79,121 @@ public class BookBucketCUDServiceImplement implements BookBucketCUDService{
 
         titleRepository.saveAll(titlesNotStored);
 
-
+        // add titles for every genre
         titlesNotStored.stream()
-                .forEach(t -> {
-                        t.getGenres().stream()
-                                .forEach(g -> {
-                                    g.getTitles().add(t);
-                                });
-                });
+            .forEach(t -> {
+                t.getGenres().stream()
+                    .forEach(g -> {
+                        g.getTitles().add(t);
+                    });
+            });
 
-        var genres = titlesNotStored.stream()
+        var genresWithTitles = titlesNotStored.stream()
                 .map(t -> t.getGenres())
                 .flatMap(Set::stream)
                 .collect(Collectors.toList());
 
-        Map<String, GenreEntity> genreMapWithAllTitles = new HashMap<>();
+        if(genresWithTitles.isEmpty())
+            return;
+        addTitlesToGenre(genresWithTitles);
 
-        for(GenreEntity g : genres) {
-            if (genreMapWithAllTitles.containsKey(g.getGenreName())) {
-                genreMapWithAllTitles.get(g.getGenreName())
-                        .getTitles().addAll(g.getTitles());
+    }
+
+    public void updateTitlesById(List<TitleRequest> requests) {
+
+        if (requests == null || requests.isEmpty())
+            throw new IllegalTitleRequestException("Request is empty");
+
+        var titlesFromRequest = requests.stream()
+                .filter(t -> t.getTitleId() != null)
+                .map(this::titleRequestToTitleEntity)
+                .collect(Collectors.toList());
+
+        titleRepository.saveAll(titlesFromRequest);
+
+//        updateTitlesGere
+        titlesFromRequest.stream()
+                .forEach(t -> {
+                    t.getGenres().stream()
+                            .forEach(g -> {
+                                g.getTitles().add(t);
+                            });
+                });
+
+        var genresWithTitles = titlesFromRequest.stream()
+                .map(t -> t.getGenres())
+                .flatMap(Set::stream)
+                .collect(Collectors.toList());
+
+        var titlesIds = titlesFromRequest.stream()
+                .map(t -> t.getId())
+                .collect(Collectors.toList());
+
+        updateTitlesGere(genresWithTitles, titlesIds);
+
+    }
+
+    private void updateTitlesGere(List<GenreEntity> genreGiven, List<Integer> titlesId) {
+        if (genreGiven == null || genreGiven.isEmpty())
+            return;
+
+        Map<String, GenreEntity> genreMapWithGivenTitles = new HashMap<>();
+
+        for(GenreEntity g : genreGiven) {
+            if  (g != null && g.getGenreName() != null) {
+                if (genreMapWithGivenTitles.containsKey(g.getGenreName())) {
+                    genreMapWithGivenTitles.get(g.getGenreName())
+                            .getTitles().addAll(g.getTitles());
+                } else
+                    genreMapWithGivenTitles.put(g.getGenreName(), g);
             }
-            else
-                genreMapWithAllTitles.put(g.getGenreName(), g);
         }
 
-        var genresRequestNames = genres.stream()
+        var genreGivenNames = genreGiven.stream()
                 .map(g -> g.getGenreName())
                 .collect(Collectors.toSet());
 
-        List<String> genreAlreadyStored = genreRepository.findAllInName(genresRequestNames);
+        var genreForUpdate = genreRepository.findInNameAndTitlesId(genreGivenNames, titlesId);
 
-        var genresToSave = genres.stream()
-                .filter(g -> !genreAlreadyStored.contains(g.getGenreName()))
-                .collect(Collectors.toSet());
+        for(var g : genreForUpdate) {
+            g.getTitles().clear();
+            g.getTitles().addAll(
+                genreMapWithGivenTitles.get(g.getGenreName()).getTitles()
+            );
+        }
 
-        genresToSave = genresToSave.stream()
-                .map(g -> {
-                    g.setTitles(titlesNotStored);
-                    return g;
-                })
-                .collect(Collectors.toSet());
+        genreRepository.saveAll(genreForUpdate);
+    }
+
+
+    private void addTitlesToGenre(List<GenreEntity> genreGiven) {
+
+        if (genreGiven == null || genreGiven.isEmpty())
+            return;
+
+        Map<String, GenreEntity> genreMapWithAllTitles = new HashMap<>();
+
+        for(GenreEntity g : genreGiven) {
+            if  (g != null && g.getGenreName() != null) {
+                if (genreMapWithAllTitles.containsKey(g.getGenreName())) {
+                    genreMapWithAllTitles.get(g.getGenreName())
+                            .getTitles().addAll(g.getTitles());
+                } else
+                    genreMapWithAllTitles.put(g.getGenreName(), g);
+            }
+        }
+
+        List<GenreEntity> genreAlreadyStored = genreRepository
+                .findAllInName(genreMapWithAllTitles.keySet());
+
+        //add titles from existed genre to not saved
+        for (var g : genreAlreadyStored) {
+            var notStoredGenre = genreMapWithAllTitles.get(g.getGenreName());
+            notStoredGenre.getTitles().addAll(g.getTitles());
+            notStoredGenre.setId(g.getId());
+        }
 
         genreRepository.saveAll(genreMapWithAllTitles.values());
-
     }
 
     private TitleEntity titleRequestToTitleEntity(TitleRequest title) {

@@ -20,7 +20,7 @@ public interface GenreRepository extends CrudRepository<GenreEntity, Integer> {
     @Query("SELECT g FROM GenreEntity g " +
             "JOIN FETCH g.titles t " +
             "WHERE t.id IN (:titlesId) " +
-            "AND g.genre_name IN (:genreNames)")
+            "AND g.genreName IN (:genreNames)")
     List<GenreEntity> findInNameAndTitlesId(@Param("genreNames") Set<String> genres,
                                             @Param("titlesId") List<Integer> titlesId);
 }

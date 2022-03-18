@@ -9,8 +9,8 @@ import java.util.List;
 public class AuthorRequest {
 
     private Integer authorId;
-    private String firthName;
-    private String lastNam;
+    private String firstName;
+    private String lastName;
     private LocalDate birthday;
     private String biography;
     private List<TitleRequest> writtenBooks;

@@ -4,8 +4,6 @@ import com.example.authorize.bookbucket.exception.IllegalTitleRequestException;
 import com.example.authorize.bookbucket.model.entity.GenreEntity;
 import com.example.authorize.bookbucket.model.entity.TitleEntity;
 import com.example.authorize.bookbucket.repository.AuthorRepository;
-import com.example.authorize.bookbucket.repository.BookRepository;
-import com.example.authorize.bookbucket.repository.GenreRepository;
 import com.example.authorize.bookbucket.repository.TitleRepository;
 import com.example.authorize.bookbucket.model.dto.*;
 import lombok.AllArgsConstructor;
@@ -18,43 +16,12 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class BookBucketCUDServiceImplement implements BookBucketCUDService{
+public class TitlesService{
 
-    private final AuthorRepository authorRepository;
-    private final BookRepository bookRepository;
     private final TitleRepository titleRepository;
-    private final GenreRepository genreRepository;
 
-    public void createAuthorTitle(AuthorRequest request) {
-        if (request.getAuthorId() != null) {
-            addTitlesToAuthor(request);
-        }
-        if (request.getBirthday() == null &&
-                request.getLastNam() == null) {
-            saveNewTitles(request.getWrittenBooks());
-        }
-        else {
-            saveAuthorWithTitle(request);
-        }
-    }
+    private final GenreService genreService;
 
-    private void saveAuthorWithTitle(AuthorRequest request){
-        saveAuthor(request);
-        addTitlesToAuthor(request);
-    }
-
-    private void addTitlesToAuthor(AuthorRequest request) {
-//        1. check author by id
-//        2.1 if booksId not null - if exist add to author
-//        2.2 if booksId null - if title not exist save then add ids to author
-//        3. save authorEntity with title ids
-    }
-
-    private void saveAuthor(AuthorRequest request) {
-//        1. check author by name and date
-//        2. if TitleRequest not null call saveTitles, add returned titleIds
-//        3. save authorEntity
-    }
 
     @Transactional( rollbackFor = { SQLException.class })
     public void saveNewTitles(List<TitleRequest> requests) {
@@ -71,7 +38,10 @@ public class BookBucketCUDServiceImplement implements BookBucketCUDService{
                 .map( t -> t.getName())
                 .collect(Collectors.toSet());
 
-        List<String> titlesAlreadyStored = titleRepository.findTitlesInName(titleNames);
+        List<String> titlesAlreadyStored = titleRepository.findTitlesInName(titleNames)
+                .stream()
+                .map(e -> e.getName())
+                .collect(Collectors.toList());
 
         var titlesNotStored = titlesFromRequest.stream()
                 .filter(t -> !titlesAlreadyStored.contains(t.getName()))
@@ -95,10 +65,11 @@ public class BookBucketCUDServiceImplement implements BookBucketCUDService{
 
         if(genresWithTitles.isEmpty())
             return;
-        addTitlesToGenre(genresWithTitles);
+        genreService.addTitlesToGenre(genresWithTitles);
 
     }
 
+    @Transactional( rollbackFor = { SQLException.class })
     public void updateTitlesById(List<TitleRequest> requests) {
 
         if (requests == null || requests.isEmpty())
@@ -129,74 +100,25 @@ public class BookBucketCUDServiceImplement implements BookBucketCUDService{
                 .map(t -> t.getId())
                 .collect(Collectors.toList());
 
-        updateTitlesGere(genresWithTitles, titlesIds);
+        genreService.updateTitlesGere(genresWithTitles, titlesIds);
 
     }
 
-    private void updateTitlesGere(List<GenreEntity> genreGiven, List<Integer> titlesId) {
-        if (genreGiven == null || genreGiven.isEmpty())
-            return;
+    public void deleteTitles(List<Integer> titlesIdsGiven) {
+//        1. find if exist
+//        2. delete from genres if not null
+//        3. delete from authors if not null
+//        4. delete titles
 
-        Map<String, GenreEntity> genreMapWithGivenTitles = new HashMap<>();
-
-        for(GenreEntity g : genreGiven) {
-            if  (g != null && g.getGenreName() != null) {
-                if (genreMapWithGivenTitles.containsKey(g.getGenreName())) {
-                    genreMapWithGivenTitles.get(g.getGenreName())
-                            .getTitles().addAll(g.getTitles());
-                } else
-                    genreMapWithGivenTitles.put(g.getGenreName(), g);
-            }
-        }
-
-        var genreGivenNames = genreGiven.stream()
-                .map(g -> g.getGenreName())
-                .collect(Collectors.toSet());
-
-        var genreForUpdate = genreRepository.findInNameAndTitlesId(genreGivenNames, titlesId);
-
-        for(var g : genreForUpdate) {
-            g.getTitles().clear();
-            g.getTitles().addAll(
-                genreMapWithGivenTitles.get(g.getGenreName()).getTitles()
-            );
-        }
-
-        genreRepository.saveAll(genreForUpdate);
     }
 
 
-    private void addTitlesToGenre(List<GenreEntity> genreGiven) {
-
-        if (genreGiven == null || genreGiven.isEmpty())
-            return;
-
-        Map<String, GenreEntity> genreMapWithAllTitles = new HashMap<>();
-
-        for(GenreEntity g : genreGiven) {
-            if  (g != null && g.getGenreName() != null) {
-                if (genreMapWithAllTitles.containsKey(g.getGenreName())) {
-                    genreMapWithAllTitles.get(g.getGenreName())
-                            .getTitles().addAll(g.getTitles());
-                } else
-                    genreMapWithAllTitles.put(g.getGenreName(), g);
-            }
-        }
-
-        List<GenreEntity> genreAlreadyStored = genreRepository
-                .findAllInName(genreMapWithAllTitles.keySet());
-
-        //add titles from existed genre to not saved
-        for (var g : genreAlreadyStored) {
-            var notStoredGenre = genreMapWithAllTitles.get(g.getGenreName());
-            notStoredGenre.getTitles().addAll(g.getTitles());
-            notStoredGenre.setId(g.getId());
-        }
-
-        genreRepository.saveAll(genreMapWithAllTitles.values());
+    public Set<TitleEntity> getTitlesIdsByName(Set<String> titleNames) {
+        return titleRepository.findTitlesInName(titleNames);
     }
 
-    private TitleEntity titleRequestToTitleEntity(TitleRequest title) {
+
+    public TitleEntity titleRequestToTitleEntity(TitleRequest title) {
         TitleEntity e = new TitleEntity();
 
         Set<GenreEntity> genres = new HashSet<>();
@@ -207,6 +129,7 @@ public class BookBucketCUDServiceImplement implements BookBucketCUDService{
                     .collect(Collectors.toSet());
         }
 
+        e.setId(title.getTitleId());
         e.setGenres(genres);
         e.setDateWriting(title.getDataWrite());
         e.setImageUrl(title.getImgUrl());
@@ -222,7 +145,4 @@ public class BookBucketCUDServiceImplement implements BookBucketCUDService{
 
         return g;
     }
-
-
-
 }

@@ -46,5 +46,5 @@ public interface TitleRepository extends JpaRepository<TitleEntity, Integer> {
 
     @Query("SELECT t.name FROM TitleEntity t " +
             "WHERE t.name IN (:titles)")
-    List<String> findTitlesInName(@Param("titles") Set<String> titleNames);
+    Set<TitleEntity> findTitlesInName(@Param("titles") Set<String> titleNames);
 }

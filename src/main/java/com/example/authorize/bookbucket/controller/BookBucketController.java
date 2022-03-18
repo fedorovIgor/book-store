@@ -1,10 +1,9 @@
 package com.example.authorize.bookbucket.controller;
 
-import com.example.authorize.bookbucket.exception.ResourceNotFoundException;
 import com.example.authorize.bookbucket.model.dto.AuthorRequest;
 import com.example.authorize.bookbucket.model.dto.GenreResponse;
 import com.example.authorize.bookbucket.model.dto.PageableResponse;
-import com.example.authorize.bookbucket.service.BookBucketCUDService;
+import com.example.authorize.bookbucket.service.AuthorService;
 import com.example.authorize.bookbucket.service.BookBucketReadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,7 @@ import java.util.List;
 public class BookBucketController {
 
     private final BookBucketReadService bookBucketReadService;
-    private final BookBucketCUDService bookBucketCUDService;
+    private final AuthorService authorService;
 
     @GetMapping(value = "title/{page}")
     public PageableResponse getAllTitle(@PathVariable("page") int page) {
@@ -48,7 +47,7 @@ public class BookBucketController {
 
     @PostMapping(value = "/create")
     public void createAuthorTitle(@RequestBody AuthorRequest request) {
-        bookBucketCUDService.createAuthorTitle(request);
+        authorService.createAuthor(request);
     }
 
 }

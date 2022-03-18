@@ -3,8 +3,6 @@ package com.example.authorize.bookbucket.service;
 import com.example.authorize.bookbucket.model.dto.Genre;
 import com.example.authorize.bookbucket.model.dto.TitleRequest;
 import com.example.authorize.bookbucket.repository.AuthorRepository;
-import com.example.authorize.bookbucket.repository.BookRepository;
-import com.example.authorize.bookbucket.repository.GenreRepository;
 import com.example.authorize.bookbucket.repository.TitleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,22 +22,19 @@ public class SaveTitlesWithGenreTest {
     @Mock
     private  AuthorRepository authorRepository;
     @Mock
-    private  BookRepository bookRepository;
-    @Mock
     private  TitleRepository titleRepository;
     @Mock
-    private  GenreRepository genreRepository;
+    private  GenreService genreService;
 
-    BookBucketCUDServiceImplement underTest;
+    TitlesService underTest;
 
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        underTest = new BookBucketCUDServiceImplement(authorRepository,
-                bookRepository,
+        underTest = new TitlesService(
                 titleRepository,
-                genreRepository);
+                genreService);
     }
 
     @Test

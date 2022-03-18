@@ -25,7 +25,7 @@ import java.util.stream.StreamSupport;
 @Service
 @AllArgsConstructor
 public class BookBucketReadServiceImplement implements BookBucketReadService {
-    private static final int pageSize = 10;
+    private static final int PAGE_SIZE = 10;
 
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
@@ -36,7 +36,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
     public PageableResponse getAllTitle(int pageNumber) {
 
         Page<Integer> titlePageIds = titleRepository.findTitleIds(
-                PageRequest.of(pageNumber, this.pageSize, Sort.by("name")));
+                PageRequest.of(pageNumber, this.PAGE_SIZE, Sort.by("name")));
 
         if (titlePageIds.getContent().isEmpty())
             throw new ResourceNotFoundException("No one book find");
@@ -60,7 +60,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
 
         Page<Integer> titlePageIds = titleRepository.findTitleIdsInGenre(
                 genreUpper,
-                    PageRequest.of(pageNumber, this.pageSize, Sort.by("name")));
+                    PageRequest.of(pageNumber, this.PAGE_SIZE, Sort.by("name")));
 
         if (titlePageIds.isEmpty())
             throw new ResourceNotFoundException(String.format(
@@ -84,7 +84,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
 
         Page<Integer> titlePageIds = titleRepository.findTitleIdsInAuthor(
                 authorId,
-                PageRequest.of(pageNumber, this.pageSize, Sort.by("name")));
+                PageRequest.of(pageNumber, this.PAGE_SIZE, Sort.by("name")));
 
         if (titlePageIds.isEmpty())
             throw new ResourceNotFoundException(String.format(
@@ -155,7 +155,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
     public PageableResponse getAllAuthors(int pageNumber) {
 
         Page<Integer> authorsIdsPage = authorRepository
-                .findAuthorsIds(PageRequest.of(pageNumber, pageSize, Sort.by("lastName")));
+                .findAuthorsIds(PageRequest.of(pageNumber, PAGE_SIZE, Sort.by("lastName")));
 
         if (authorsIdsPage.getContent().isEmpty())
             throw new ResourceNotFoundException("No one book find");

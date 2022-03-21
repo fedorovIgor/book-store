@@ -2,11 +2,7 @@ package com.example.authorize.bookbucket.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.tomcat.jni.Local;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.context.request.WebRequest;
-
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor

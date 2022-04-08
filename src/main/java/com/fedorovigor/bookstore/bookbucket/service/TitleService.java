@@ -5,6 +5,7 @@ import com.fedorovigor.bookstore.bookbucket.exception.ResourceAlreadyExistExcept
 import com.fedorovigor.bookstore.bookbucket.exception.ResourceNotFoundException;
 import com.fedorovigor.bookstore.bookbucket.model.dto.BookRequest;
 import com.fedorovigor.bookstore.bookbucket.model.dto.TitleRequest;
+import com.fedorovigor.bookstore.bookbucket.model.dto.TitleResponse;
 import com.fedorovigor.bookstore.bookbucket.model.entity.BookEntity;
 import com.fedorovigor.bookstore.bookbucket.model.entity.GenreEntity;
 import com.fedorovigor.bookstore.bookbucket.model.entity.TitleEntity;
@@ -19,12 +20,22 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class TitleService {
+public class TitleService implements TitleCommunication{
 
     private final TitleRepository titleRepository;
     private final GenreService genreService;
     private final BucketMapping mapper;
 
+    @Override
+    public List<TitleResponse> getAllTitleWithAuthorGenresByIds(List<Integer> ids) {
+        var fullTitleEntity = titleRepository.findTitlesInIds(ids);
+
+        var titles = fullTitleEntity.stream()
+                .map(mapper::titleEntityToFullTitleResponse)
+                .collect(Collectors.toList());
+
+        return titles;
+    }
 
     public void createTitle(TitleRequest request) {
 

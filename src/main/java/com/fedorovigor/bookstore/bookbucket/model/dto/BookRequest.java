@@ -10,5 +10,6 @@ public class BookRequest {
     private LocalDate datePublication;
     private String publisher;
     private Integer price;
+    private String downloadUrl;
 
 }

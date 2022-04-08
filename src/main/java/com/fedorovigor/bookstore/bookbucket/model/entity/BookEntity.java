@@ -30,6 +30,7 @@ public class BookEntity {
     private LocalDate datePublication;
     private String publisher;
     private Integer price;
+    private String downloadUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="title_fk")

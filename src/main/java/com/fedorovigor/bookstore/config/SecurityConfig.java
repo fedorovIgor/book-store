@@ -48,7 +48,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-
                 .mvcMatchers(HttpMethod.GET, "**/login").permitAll()
                 .mvcMatchers(HttpMethod.POST, "**/user/create").permitAll()
                 .mvcMatchers(HttpMethod.PUT, "**/user/password").authenticated()
@@ -62,6 +61,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/swagger-ui").hasAuthority("get_logs")
                 .mvcMatchers("/v3/api-docs").hasAuthority("get_logs")
 
+                .mvcMatchers(HttpMethod.POST, "api/v1/bucket/**").hasAuthority("create_book")
+                .mvcMatchers(HttpMethod.PUT, "api/v1/bucket/**").hasAuthority("update_book")
                 .mvcMatchers(HttpMethod.GET, "api/v1/bucket/**").permitAll()
 
                 .anyRequest().permitAll();

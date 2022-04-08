@@ -32,6 +32,13 @@ public interface TitleRepository extends JpaRepository<TitleEntity, Integer> {
             "LEFT JOIN FETCH t.booksEntity " +
             "WHERE t.id IN (:ids) "
     )
+    List<TitleEntity> findFullTitlesInIds(@Param("ids") List<Integer> ids);
+
+    @Query("SELECT DISTINCT t FROM TitleEntity t " +
+            "LEFT JOIN t.genres " +
+            "LEFT JOIN t.authors " +
+            "WHERE t.id IN (:ids) "
+    )
     List<TitleEntity> findTitlesInIds(@Param("ids") List<Integer> ids);
 
     @Query("SELECT t.id FROM TitleEntity t " +

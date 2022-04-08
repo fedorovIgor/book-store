@@ -43,7 +43,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
         if (titlePageIds.getContent().isEmpty())
             throw new ResourceNotFoundException("No one book find");
 
-        List<TitleEntity> titleEntity = titleRepository.findTitlesInIds(titlePageIds.getContent());
+        List<TitleEntity> titleEntity = titleRepository.findFullTitlesInIds(titlePageIds.getContent());
 
         var titles = titleEntity.stream()
                 .map(this::titleEntityToTitleResponse)
@@ -68,7 +68,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
             throw new ResourceNotFoundException(String.format(
                     "No one book find with genre [%s]",genre));
 
-        List<TitleEntity> titleEntity = titleRepository.findTitlesInIds(titlePageIds.getContent());
+        List<TitleEntity> titleEntity = titleRepository.findFullTitlesInIds(titlePageIds.getContent());
 
         var titlesInGenre = titleEntity.stream()
                 .map(this::titleEntityToTitleResponse)
@@ -92,7 +92,7 @@ public class BookBucketReadServiceImplement implements BookBucketReadService {
             throw new ResourceNotFoundException(String.format(
                     "No one book find with authorId [%i]",authorId));
 
-        List<TitleEntity> titleEntity = titleRepository.findTitlesInIds(titlePageIds.getContent());
+        List<TitleEntity> titleEntity = titleRepository.findFullTitlesInIds(titlePageIds.getContent());
 
         var titlesInAuthor = titleEntity.stream()
                 .map(this::titleEntityToTitleResponse)

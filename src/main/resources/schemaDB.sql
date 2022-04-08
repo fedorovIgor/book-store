@@ -97,5 +97,11 @@ CREATE TABLE IF NOT EXISTS book (
      title_id INT REFERENCES title(id)
  );
 
+ CREATE TABLE IF NOT EXISTS user_resource (
+    id int PRIMARY KEY,
+    username VARCHAR NOT NULL,
+    book_id INT NOT NULL
+)
+
 
 

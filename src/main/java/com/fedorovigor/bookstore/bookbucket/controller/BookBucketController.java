@@ -21,18 +21,23 @@ public class BookBucketController {
     private final TitleService titleService;
     private final GenreService genreService;
 
+    @GetMapping(value = "title/{titleId}/")
+    public List<Book> getTitleBooks(@PathVariable("titleId") int titleId) {
+        return bookBucketReadService.getAllBooksInTitle(titleId);
+    }
+
     @GetMapping(value = "title/{page}")
     public PageableResponse getAllTitle(@PathVariable("page") int page) {
         return bookBucketReadService.getAllTitle(page);
     }
 
-    @GetMapping(value = "title/{authorId}/{page}")
+    @GetMapping(value = "title/author/{authorId}/{page}")
     public PageableResponse getAllTitleWithAuthor(@PathVariable("page") int page,
                                                   @PathVariable("authorId") int authorId) {
         return bookBucketReadService.getTitlesByAuthorId(authorId, page);
     }
 
-    @GetMapping(value = "title/{genre}/{page}")
+    @GetMapping(value = "title/genre/{genre}/{page}")
     public PageableResponse getAllTitleWithGenre(@PathVariable("page") int page,
                                                  @PathVariable("genre") String genre) {
         return bookBucketReadService.getTitlesByGenre(genre, page);

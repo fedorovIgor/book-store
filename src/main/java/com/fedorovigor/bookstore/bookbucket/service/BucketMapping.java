@@ -7,7 +7,9 @@ import com.fedorovigor.bookstore.bookbucket.model.entity.GenreEntity;
 import com.fedorovigor.bookstore.bookbucket.model.entity.TitleEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,19 @@ public class BucketMapping {
                 .title(e.getName())
                 .imgUrl(e.getImageUrl())
                 .dateWriting(e.getDateWriting())
+                .build();
+
+        return response;
+    }
+
+    public TitleResponse titleEntityToFullTitleResponse(TitleEntity e) {
+        TitleResponse response = new TitleResponse().builder()
+                .id(e.getId())
+                .title(e.getName())
+                .imgUrl(e.getImageUrl())
+                .dateWriting(e.getDateWriting())
+                .authorNames(createShorAuthorName(e.getAuthors()))
+                .genres(creteShorGenreName(e.getGenres()))
                 .build();
 
         return response;
@@ -53,6 +68,19 @@ public class BucketMapping {
         return e;
     }
 
+    public BookDTO bookEntityToBookDTO(BookEntity e) {
+        BookDTO bookDTO = new BookDTO().builder()
+                .id(e.getId())
+                .datePublication(e.getDatePublication())
+                .downloadUrl(e.getDownloadUrl())
+                .title(e.getTitle())
+                .publisher(e.getPublisher())
+                .price(e.getPrice())
+                .build();
+
+        return bookDTO;
+    }
+
     public GenreEntity genreRequestToGenreEntity(GenreRequest request) {
         GenreEntity g = new GenreEntity();
         g.setGenreName(request.getGenre());
@@ -67,6 +95,22 @@ public class BucketMapping {
         authorResponse.setId(e.getId());
 
         return authorResponse;
+    }
+
+    public String createShorAuthorName(Set<AuthorEntity> e) {
+        var result = e.stream()
+                .map(a -> a.getFirstName().charAt(0) + "." + a.getLastName())
+                .collect(Collectors.joining(","));
+
+        return result;
+    }
+
+    public String creteShorGenreName(Collection<GenreEntity> names) {
+        var result = names.stream()
+                .map(n -> n.getGenreName())
+                .collect(Collectors.joining(","));
+
+        return result;
     }
 
 }

@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS book (
     date_publication DATE,
     publisher VARCHAR(64),
     price INT,
+    download_url VARCHAR,
     title_fk INT REFERENCES title (id)
  );
 

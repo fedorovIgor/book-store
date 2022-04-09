@@ -33,7 +33,7 @@ public class BookDTO {
             bookDTO.setPublisher(publisher);
             return this;
         }
-        public Builder price(int price) {
+        public Builder price(Integer price) {
             bookDTO.setPrice(price);
             return this;
         }

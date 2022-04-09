@@ -67,7 +67,7 @@ public class BookFullResponse {
             t.setPublisher(publisher);
             return this;
         }
-        public Builder price(int price) {
+        public Builder price(Integer price) {
             t.setPrice(price);
             return this;
         }

@@ -32,7 +32,8 @@ public class UserBucketServiceImpl implements UserBucketService {
 //        1. get all bookIds from UBRepo
 //        2. get titleId related to book
 //        4. get BookResponse by bookId
-//        5. compact to full book .
+//        5. compact to full book
+
         var bookIds = userBookRepository.findRelatedIds(username);
 
         List<BookDTO> bookDto = connectToBookBucket.getBookByIds(bookIds);

@@ -31,7 +31,7 @@ class GenreServiceTest_create {
     private GenreRequest request;
 
     @BeforeEach
-    public  void init() {
+    public void init() {
         mocked = new GenreService(
                 genreRepository,
                 titleRepository,

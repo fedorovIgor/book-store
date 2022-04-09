@@ -1,5 +1,6 @@
 package com.fedorovigor.bookstore.user.service;
 
+import com.fedorovigor.bookstore.user.mapper.UserMapper;
 import com.fedorovigor.bookstore.user.repository.UserRepository;
 import com.fedorovigor.bookstore.user.model.dto.Authority;
 import com.fedorovigor.bookstore.user.model.dto.Role;
@@ -21,56 +22,28 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class JpaUserDetailsService implements UserDetailsManager {
+public class JpaUserDetailsManager implements UserDetailsManager {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final UserMapper mapper;
 
     @Override
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
 
-        Optional<UserEntity> userByUsername = userRepository.findUserByUsername(username);
-
-        UserEntity entity = userByUsername.orElseThrow(() -> new UsernameNotFoundException
+        UserEntity entity = userRepository.findUserWithAuthoritiesByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException
                 (String.format("User with username [%s] not found", username)));
 
-       var user = this.userEntityToUser(entity);
+       var user = mapper.userEntityToUserWithAuthority(entity);
 
         return new SecurityUser(user);
     }
-
-    private User userEntityToUser(UserEntity entity) {
-        var user = new User();
-
-        user.setUsername(entity.getUsername());
-        user.setPassword(entity.getPassword());
-
-        if (entity.getRole() == null)
-            return user;
-
-        var roleEntity = entity.getRole();
-        Collection<AuthorityEntity> authoritiesEntity = roleEntity.getAuthorities();
-
-        var role = new Role();
-        role.setRoleName(roleEntity.getRoleName());
-        role.setAuthorities(
-                authoritiesEntity.stream()
-                        .map(a -> new Authority(a.getName(), a.getDescription()))
-                        .collect(Collectors.toList())
-        );
-
-        user.setRole(role);
-
-        return user;
-    }
-
-
 
     @Override
     public void createUser(UserDetails user) {

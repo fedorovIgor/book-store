@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 @Data
 @AllArgsConstructor
@@ -14,5 +16,5 @@ import java.io.Serializable;
 public class User implements Serializable {
     private String username;
     private String password;
-    private Role role;
+    private Collection<GrantedAuthority> grantedAuthorities;
 }

@@ -10,15 +10,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends CrudRepository<UserEntity, Integer> {
-
-    @Query("SELECT u FROM UserEntity u " +
-            "LEFT JOIN FETCH u.role r " +
-            "LEFT JOIN FETCH r.authorities " +
-            "WHERE u.username = :username")
-    Optional<UserEntity> findUserByUsername(String username);
+    String queryFindUserByUsername = """
+            SELECT u FROM UserEntity u
+            LEFT JOIN FETCH u.role r
+            LEFT JOIN FETCH r.authorities
+            WHERE u.username LIKE (:username)""";
+    @Query(queryFindUserByUsername)
+    Optional<UserEntity> findUserWithAuthoritiesByUsername(String username);
 
     @Query("SELECT u FROM UserEntity u LEFT JOIN FETCH u.role")
-    List<UserEntity> findAllUsers();
+    List<UserEntity> findAllUsersWithRole();
 
 
     @Modifying

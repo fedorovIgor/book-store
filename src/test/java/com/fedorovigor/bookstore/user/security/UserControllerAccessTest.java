@@ -2,10 +2,9 @@ package com.fedorovigor.bookstore.user.security;
 
 import com.fedorovigor.bookstore.user.controller.UserController;
 import com.fedorovigor.bookstore.user.model.dto.UserRequest;
-import com.fedorovigor.bookstore.user.service.JpaUserDetailsService;
+import com.fedorovigor.bookstore.user.service.JpaUserDetailsManager;
 import com.fedorovigor.bookstore.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class UserControllerAccessTest {
     @MockBean
     private UserService userService;
     @MockBean
-    private JpaUserDetailsService userDetailsService;
+    private JpaUserDetailsManager userDetailsService;
 
     ObjectMapper objectMapper;
 

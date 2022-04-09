@@ -23,7 +23,7 @@ public class UserService {
     public List<UserResponse> getAllUser() {
 
         var result = StreamSupport
-                .stream(userRepository.findAllUsers().spliterator(),false)
+                .stream(userRepository.findAllUsersWithRole().spliterator(),false)
                 .map(this::userEntityToUserResponse)
                 .collect(Collectors.toList());
 
@@ -31,7 +31,7 @@ public class UserService {
     }
 
     public UserResponse getUserByUsername(String username) {
-        var entity = userRepository.findUserByUsername(username)
+        var entity = userRepository.findUserWithAuthoritiesByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException
                 (String.format("User with username [%s] not found", username)));
 
@@ -41,11 +41,11 @@ public class UserService {
 
     public void changeUserRole(String username, String roleName) {
 
-        UserEntity userEntity = userRepository.findUserByUsername(username)
+        UserEntity userEntity = userRepository.findUserWithAuthoritiesByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException
                 (String.format("User with username [%s] not found", username)));
 
-        RoleEntity roleEntity = roleRepository.findByRoleName(roleName)
+        RoleEntity roleEntity = roleRepository.findRoleByName(roleName)
                 .orElseThrow(() -> new UsernameNotFoundException
                 (String.format("Role with roleName [%s] not found", roleName)));
 

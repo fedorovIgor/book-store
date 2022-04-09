@@ -1,5 +1,6 @@
 package com.fedorovigor.bookstore.user.service;
 
+import com.fedorovigor.bookstore.user.mapper.UserMapper;
 import com.fedorovigor.bookstore.user.repository.AuthorityRepository;
 import com.fedorovigor.bookstore.user.repository.RoleRepository;
 import com.fedorovigor.bookstore.user.model.dto.Authority;
@@ -23,6 +24,7 @@ public class RoleService {
 
     private final RoleRepository roleRepository;
     private final AuthorityRepository authorityRepository;
+    private final UserMapper mapper;
 
     public List<Role> getAllRolesWithAuthorities() {
         var roles = roleRepository.findAllRolesWithAuthorities().stream()
@@ -34,7 +36,7 @@ public class RoleService {
 
 
     public Role findRoleByName(String roleName) {
-        RoleEntity entity = roleRepository.findByRoleName(roleName)
+        RoleEntity entity = roleRepository.findRoleByName(roleName)
                 .orElseThrow(() -> new RuntimeException(
                         String.format("cant get role with name [%s]", roleName))
         );
@@ -56,7 +58,7 @@ public class RoleService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void changeRole(Role role) {
-        RoleEntity roleEntity = roleRepository.findByRoleName(role.getRoleName())
+        RoleEntity roleEntity = roleRepository.findRoleByName(role.getRoleName())
                 .orElseThrow(() -> new RuntimeException(
                         String.format("cant get role with name [%s]", role.getRoleName()))
                 );
@@ -76,7 +78,7 @@ public class RoleService {
         if (role == null || role.getRoleName() == null)
             throw new RuntimeException("Role may not be empty or null");
 
-        Optional<RoleEntity> roleOptional = roleRepository.findByRoleName(role.getRoleName());
+        Optional<RoleEntity> roleOptional = roleRepository.findRoleByName(role.getRoleName());
 
         if (roleOptional.isPresent())
             throw new RuntimeException(

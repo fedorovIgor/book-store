@@ -4,7 +4,7 @@ import com.fedorovigor.bookstore.user.model.SecurityUser;
 import com.fedorovigor.bookstore.user.model.dto.User;
 import com.fedorovigor.bookstore.user.model.dto.UserRequest;
 import com.fedorovigor.bookstore.user.model.dto.UserResponse;
-import com.fedorovigor.bookstore.user.service.JpaUserDetailsService;
+import com.fedorovigor.bookstore.user.service.JpaUserDetailsManager;
 import com.fedorovigor.bookstore.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final JpaUserDetailsService userDetailsService;
+    private final JpaUserDetailsManager userDetailsService;
 
     @GetMapping("/login")
     public Principal getPrincipal(Principal user) {

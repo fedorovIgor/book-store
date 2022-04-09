@@ -1,6 +1,6 @@
 package com.fedorovigor.bookstore.config;
 
-import com.fedorovigor.bookstore.user.service.JpaUserDetailsService;
+import com.fedorovigor.bookstore.user.service.JpaUserDetailsManager;
 import com.fedorovigor.bookstore.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,7 @@ public class SecurityResourceConfig {
 
     @Bean
     public UserDetailsManager userDetailsService() {
-        return new JpaUserDetailsService(passwordEncoder(), userRepository);
+        return new JpaUserDetailsManager(passwordEncoder(), userRepository);
     }
 
     @Bean

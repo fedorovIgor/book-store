@@ -9,6 +9,7 @@ class AuthorizeApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 

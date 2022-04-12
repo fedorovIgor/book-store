@@ -18,14 +18,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200"));
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowedMethods(List.of("OPTIONS", "GET", "HEAD", "POST", "PUT"));
+
+        CorsConfiguration apiConfig = new CorsConfiguration();
+        apiConfig.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200"));
+        apiConfig.setAllowCredentials(true);
+        apiConfig.setAllowedHeaders(List.of("*"));
+        apiConfig.setAllowedMethods(List.of("OPTIONS", "GET", "HEAD", "POST", "PUT"));
+
+        CorsConfiguration globalConfig = new CorsConfiguration();
+        globalConfig.setAllowedOrigins(List.of("*"));
+        globalConfig.setAllowedHeaders(List.of("*"));
+        globalConfig.setAllowedMethods(List.of("*"));
+
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/api/**", apiConfig);
+        source.registerCorsConfiguration("/**", globalConfig);
+
 
         return source;
     }
@@ -40,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.httpBasic();
 
-        http.cors();
+        http.cors(httpSecurityCorsConfigurer -> corsConfigurationSource());
 
         http.csrf()
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
@@ -64,6 +73,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers(HttpMethod.POST, "api/v1/bucket/**").hasAuthority("create_book")
                 .mvcMatchers(HttpMethod.PUT, "api/v1/bucket/**").hasAuthority("update_book")
                 .mvcMatchers(HttpMethod.GET, "api/v1/bucket/**").permitAll()
+
+
+                .mvcMatchers("/actuator/**").permitAll()
 
                 .anyRequest().permitAll();
 

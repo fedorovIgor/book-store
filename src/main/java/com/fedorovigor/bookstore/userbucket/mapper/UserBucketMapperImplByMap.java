@@ -3,11 +3,13 @@ package com.fedorovigor.bookstore.userbucket.mapper;
 import com.fedorovigor.bookstore.bookbucket.model.dto.BookDTO;
 import com.fedorovigor.bookstore.bookbucket.model.dto.TitleResponse;
 import com.fedorovigor.bookstore.userbucket.model.dto.BookFullResponse;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//@Service
 public class UserBucketMapperImplByMap extends UserBucketAbstractMapper {
 
     @Override

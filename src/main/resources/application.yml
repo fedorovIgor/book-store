@@ -34,7 +34,7 @@ spring:
     password: 123
 
     initialization-mode: ALWAYS
-    schema: classpath:schemaDB.sql
+
 
   jpa:
     database: postgresql

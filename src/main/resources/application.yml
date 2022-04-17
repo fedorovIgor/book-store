@@ -1,5 +1,8 @@
+#debug: true
 
-server.port: 8086
+server:
+  port: 8086
+  servlet.session.timeout: 1500
 
 info.app:
   name: "book-store"
@@ -20,21 +23,24 @@ management.endpoints.web.exposure:
         include: "prometheus,health,info,metrics,diskSpace,ping"
 
 spring:
-#
-#  mvc.view:
-#    prefix: /WEB-INF/jsp/
-#    suffix: .jsp
+
   application:
-    name: athorize
+    name: book-store
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: "jdbc:postgresql://127.0.0.1:5432/authorize"
+    url: "jdbc:postgresql://127.0.0.1:5000/authorize"
     username: book_manager
     password: 123
 
     initialization-mode: ALWAYS
 
+  redis:
+    host: localhost
+    password: 123
+    port: 6379
+    database: 0
+    timeout: 60000
 
   jpa:
     database: postgresql
@@ -44,9 +50,12 @@ spring:
 
   session:
     timeout: 1500s
-    store-type: jdbc
-    jdbc:
-      initialize-schema: never
+    store-type: redis
+    redis:
+      flush-mode: on_save
+      namespace: spring:session
 
-  mvc.pathmatch:
+
+
+mvc.pathmatch:
       matching-strategy: ant-path-matcher
